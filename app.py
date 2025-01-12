@@ -11,7 +11,13 @@ db = SQLAlchemy(app)
 # Models
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False, unique=True)
+    name = db.Column(db.String(255), unique=True, nullable=False)
+    view_count = db.Column(db.Integer, default=0)  # Track view count
+
+    products = db.relationship('Product', backref='category', lazy=True)
+
+    def __repr__(self):
+        return f"<Category {self.name}>"
 
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -66,22 +72,30 @@ def allowed_file(filename):
 def index():
     query = request.args.get('search', '').strip()
     sort_by = request.args.get('sort', 'name')
-    
+
     # Fetch products based on search query
     if query:
         products = Product.query.filter(Product.name.ilike(f"%{query}%")).order_by(sort_by).all()
     else:
         products = Product.query.order_by(sort_by).all()
-    
-    # Initialize the dictionary with all categories
-    products_by_category = {category['name']: [] for category in CATEGORIES}
-    products_by_category['Uncategorized'] = []  # Fallback for uncategorized products
 
-    # Organize products into categories
+    # Initialize the dictionary with all categories, including count and view_count
+    products_by_category = {category['name']: {'products': [], 'view_count': category.view_count} for category in CATEGORIES}
+    products_by_category['Uncategorized'] = {'products': [], 'view_count': 0}  # Fallback for uncategorized products
+
+    # Organize products into categories and count them
     for product in products:
         # Fetch category name by ID, fallback to 'Uncategorized'
         category_name = next((cat['name'] for cat in CATEGORIES if cat['id'] == product.category_id), 'Uncategorized')
-        products_by_category[category_name].append(product)
+        products_by_category[category_name]['products'].append(product)
+    
+    # Track views (increment the view count for categories clicked)
+    if request.args.get('category_view'):
+        category_name = request.args.get('category_view')
+        category = Category.query.filter_by(name=category_name).first()
+        if category:
+            category.view_count += 1
+            db.session.commit()
 
     categories = Category.query.all()
     return render_template('index.html', 
@@ -90,6 +104,22 @@ def index():
                            query=query, 
                            sort_by=sort_by, 
                            products_by_category=products_by_category)
+
+
+@app.route('/track-view', methods=['GET'])
+def track_category_view():
+    category_name = request.args.get('category_view')
+    if category_name:
+        # Find the category by name
+        category = Category.query.filter_by(name=category_name).first()
+        if category:
+            # Increment the view count for the category
+            category.view_count += 1
+            db.session.commit()
+            return jsonify({'view_count': category.view_count})
+
+    return jsonify({"error": "Category not found"}), 404
+
 
 @app.route('/product/<int:product_id>')
 def product_details(product_id):
