@@ -78,7 +78,7 @@
                                 <td>
                                     {{ categories | selectattr('id', 'equalto', product.category_id) | map(attribute='name') | first }}
                                 </td>
-                                <td>${{ product.price }}</td>
+                                <td>MWK{{ product.price }}</td>
                                 <td>
                                     {% for image in product.image_url.split(',') %}
                                     <img src="{{ image }}" alt="Product Image" class="img-thumbnail me-2" style="width: 50px; height: 50px;">

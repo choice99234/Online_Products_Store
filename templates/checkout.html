@@ -22,9 +22,9 @@
                         {% for item in cart_items %}
                         <tr>
                             <td>{{ item.product.name }}</td>
-                            <td>MWK{{ item.product.price }}</td>
+                            <td>MK{{ item.product.price }}</td>
                             <td>{{ item.quantity }}</td>
-                            <td>MWK{{ item.product.price * item.quantity }}</td>
+                            <td>MK{{ item.product.price * item.quantity }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -34,7 +34,7 @@
 
         <!-- Total Price -->
         <div class="total-price-container">
-            <h3>Total: MWK{{ total_price }}</h3>
+            <h3>Total: MK{{ total_price }}</h3>
         </div>
 
         <!-- Checkout Form -->

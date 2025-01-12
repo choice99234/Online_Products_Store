@@ -23,11 +23,11 @@
                         <img src="{{ item.product.image_url }}" alt="Product Image" class="product-image">
                         {{ item.product.name }}
                     </td>
-                    <td>MWK{{ item.product.price }}</td>
+                    <td>MK{{ item.product.price }}</td>
                     <td>
                         <input type="number" class="quantity-input" id="quantity-{{ item.id }}" value="{{ item.quantity }}" min="1">
                     </td>
-                    <td id="total-{{ item.id }}">MWK{{ item.product.price * item.quantity }}</td>
+                    <td id="total-{{ item.id }}">MK{{ item.product.price * item.quantity }}</td>
                     <td>
                         <button class="btn-danger remove-cart-item" data-id="{{ item.id }}" data-price="{{ item.product.price }}">Remove</button>
                     </td>
@@ -42,7 +42,7 @@
     <div class="cart-summary">
         <h2>Order Summary</h2>
         <p><strong>Total Items:</strong> {{ total_quantity }}</p>
-        <p><strong>Total Price:</strong> MWK{{ total_price }}</p>
+        <p><strong>Total Price:</strong> MK{{ total_price }}</p>
         <a href="{{ url_for('checkout') }}" class="btn-primary">Proceed to Checkout</a>
     </div>
 
