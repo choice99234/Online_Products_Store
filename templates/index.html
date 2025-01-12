@@ -23,16 +23,13 @@
 </div>
 
 <!-- Product Listings -->
-{% for category, data in products_by_category.items() %}
+{% for category, products in products_by_category.items() %}
 <div class="container-lg mt-4">
     <div class="category-container" id="category-{{ loop.index }}" data-category="{{ category }}">
-        <h5 class="fw-bold text-dark mb-3">
-            {{ category }} ({{ data.product_count }} products) 
-            <small class="text-muted">Viewed: {{ data.view_count }} times</small>
-        </h5>
+        <h5 class="fw-bold text-dark mb-3">{{ category }} <span class="badge bg-secondary" id="category-{{ loop.index }}-count">({{ products|length }} items)</span></h5>
         <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-4" id="products-{{ loop.index }}">
-            {% if data.products %}
-            {% for product in data.products %}
+            {% if products %}
+            {% for product in products %}
             <div class="col">
                 <!-- Product Card -->
                 <div class="card h-100 shadow-sm border-0 rounded">
@@ -65,31 +62,46 @@
 {% endfor %}
 
 <script>
-    // Function to track category view
+    // Hide categories with no products
     document.addEventListener("DOMContentLoaded", function() {
-    var categoryContainers = document.querySelectorAll('.category-container');
+        {% for category, products in products_by_category.items() %}
+        var categoryContainer = document.getElementById('category-{{ loop.index }}');
+        var productsContainer = document.getElementById('products-{{ loop.index }}');
 
-    categoryContainers.forEach(function(container) {
-        container.addEventListener('click', function() {
-            var category = container.getAttribute('data-category');
-            // Send an AJAX request to increment the view count for the clicked category
-            fetch(`/track-view?category_view=${category}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            }).then(response => response.json())
-              .then(data => {
-                  // Optionally update the view count on the page without refreshing
-                  var viewCountElement = container.querySelector('.view-count');
-                  if (viewCountElement) {
-                      viewCountElement.textContent = `Viewed: ${data.view_count} times`;
-                  }
-              })
-              .catch(error => console.error('Error tracking view:', error));
+        // If there are no products in this category, hide the category title and products
+        if (!{{ products|length }}) {
+            categoryContainer.style.display = "none";
+        } else {
+            categoryContainer.style.display = "block";
+        }
+        {% endfor %}
+
+        // Track category view clicks
+        const categoryContainers = document.querySelectorAll('.category-container');
+        categoryContainers.forEach(function(container) {
+            container.addEventListener('click', function() {
+                const categoryName = container.getAttribute('data-category');
+                trackCategoryView(categoryName);
+            });
         });
     });
-});
+
+    // Function to track category view count
+    function trackCategoryView(categoryName) {
+        // You can use an API or an AJAX call to send the category view to the server for tracking
+        fetch('/track-view/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ category: categoryName }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Category view tracked:', data);
+        })
+        .catch(error => console.error('Error tracking category view:', error));
+    }
 </script>
 
 {% endblock %}
