@@ -60,6 +60,27 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+# Add this route to handle admin login
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        
+        # Hardcoded admin credentials
+        admin_username = 'ovilera@onlinestore'
+        admin_password = 'admin@123456789'
+        
+        if username == admin_username and password == admin_password:
+            session['username'] = username  # Store username in session to indicate that user is logged in
+            return redirect(url_for('admin'))
+        else:
+            flash("Only admin can access this page.")
+            return redirect(url_for('index'))  # Redirect non-admin users to index page
+    
+    return render_template('login.html')
+
+
 
 # Routes
 @app.route('/', methods=['GET', 'POST'])
