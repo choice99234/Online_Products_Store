@@ -1,0 +1,294 @@
+{% extends 'base.html' %}
+
+{% block title %}Your Shopping Cart{% endblock %}
+
+{% block content %}
+    <!-- Cart Section -->
+    <div class="cart-section">
+        <h2>Items in Your Cart</h2>
+        <table class="table" id="cart-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="cart-body">
+                {% for item in cart_items %}
+                <tr id="cart-item-{{ item.id }}">
+                    <td class="product-info">
+                        <img src="{{ item.product.image_url }}" alt="Product Image" class="product-image">
+                        {{ item.product.name }}
+                    </td>
+                    <td>MWK{{ item.product.price }}</td>
+                    <td>
+                        <input type="number" class="quantity-input" id="quantity-{{ item.id }}" value="{{ item.quantity }}" min="1">
+                    </td>
+                    <td id="total-{{ item.id }}">MWK{{ item.product.price * item.quantity }}</td>
+                    <td>
+                        <button class="btn-danger remove-cart-item" data-id="{{ item.id }}" data-price="{{ item.product.price }}">Remove</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <p id="empty-message" class="empty-message" style="display: none;">Your cart is empty. Start shopping!</p>
+    </div>
+
+    <!-- Cart Summary Section -->
+    <div class="cart-summary">
+        <h2>Order Summary</h2>
+        <p><strong>Total Items:</strong> {{ total_quantity }}</p>
+        <p><strong>Total Price:</strong> MWK{{ total_price }}</p>
+        <a href="{{ url_for('checkout') }}" class="btn-primary">Proceed to Checkout</a>
+    </div>
+
+    <style>
+        /* Basic Reset */
+        body, h1, h2, p, table {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f7f7f7;
+            color: #333;
+            font-size: 16px;
+        }
+
+        /* Cart Section */
+        .cart-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px; /* Added for spacing on small screens */
+        }
+
+        .cart-section h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .table th, .table td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #f0f0f0;
+        }
+
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .product-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .product-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+
+        .btn-danger {
+            background-color: #d63031;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-danger:hover {
+            background-color: #e74c3c;
+        }
+
+        .empty-message {
+            text-align: center;
+            font-size: 18px;
+            color: #777;
+            padding: 20px;
+        }
+
+        /* Cart Summary Section */
+        .cart-summary {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .cart-summary h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .cart-summary p {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background-color: #ff9900;
+            color: white;
+            padding: 12px 25px;
+            text-align: center;
+            border-radius: 6px;
+            font-size: 18px;
+            width: 100%;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary:hover {
+            background-color: #f37e00;
+        }
+
+        /* Update quantity input */
+        .quantity-input {
+            width: 60px;
+            text-align: center;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        /* Media Queries for Responsiveness */
+        @media (max-width: 768px) {
+            .cart-section {
+                margin-bottom: 20px;
+            }
+
+            .cart-summary {
+                margin-top: 20px;
+            }
+
+            .table th, .table td {
+                padding: 10px;
+            }
+
+            .product-info {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .product-image {
+                margin-bottom: 10px;
+                width: 50px;
+                height: 50px;
+            }
+
+            .quantity-input {
+                width: 50px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .product-image {
+                width: 40px;
+                height: 40px;
+            }
+
+            .cart-summary p {
+                font-size: 16px;
+            }
+
+            .btn-primary {
+                font-size: 16px;
+                padding: 10px 20px;
+            }
+        }
+
+        /* Adding responsive table */
+        .table {
+            width: 100%;
+            overflow-x: auto;
+            display: block;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const cartBody = document.getElementById('cart-body');
+            const emptyMessage = document.getElementById('empty-message');
+
+            function checkCartEmpty() {
+                if (cartBody.children.length === 0) {
+                    emptyMessage.style.display = 'block';
+                } else {
+                    emptyMessage.style.display = 'none';
+                }
+            }
+
+            checkCartEmpty();
+
+            document.querySelectorAll('.remove-cart-item').forEach(button => {
+                button.addEventListener('click', function () {
+                    const cartId = this.getAttribute('data-id');
+                    const quantityElement = document.getElementById(`quantity-${cartId}`);
+                    let currentQuantity = parseInt(quantityElement.value);
+
+                    if (currentQuantity > 1) {
+                        // Decrease quantity instead of removing the item
+                        currentQuantity--;
+                        quantityElement.value = currentQuantity;
+                        updateTotal(cartId, currentQuantity);
+                    } else {
+                        // If quantity is 1, remove the item
+                        fetch(`/remove_from_cart/${cartId}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.message === "Item removed") {
+                                document.getElementById(`cart-item-${cartId}`).remove();
+                                checkCartEmpty();
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                    }
+                });
+            });
+
+            function updateTotal(cartId, quantity) {
+                const price = document.querySelector(`#cart-item-${cartId} td:nth-child(2)`).innerText.replace('MWK', '');
+                const total = price * quantity;
+                document.getElementById(`total-${cartId}`).innerText = `MWK${total}`;
+            }
+
+            // Handling table resizing on smaller screens
+            window.addEventListener('resize', handleTableResize);
+
+            function handleTableResize() {
+                const table = document.getElementById('cart-table');
+                const tableWidth = table.offsetWidth;
+                if (window.innerWidth <= 768) {
+                    table.style.fontSize = '12px'; // Reduce font size on small devices
+                } else {
+                    table.style.fontSize = ''; // Reset font size for larger devices
+                }
+            }
+
+            handleTableResize(); // Initial call to set font size on load
+        });
+    </script>
+{% endblock %}
+</body>
+</html>

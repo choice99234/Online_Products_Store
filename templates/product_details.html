@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - Product Details{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row gx-5">
+        <!-- Product Image Section -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    {% if product.image_url %}
+                        <img src="{{ url_for('static', filename='uploads/' + product.image_url.split('/')[-1]) }}" class="img-fluid rounded" alt="{{ product.name }}" style="max-height: 400px;">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='default-image.jpg') }}" class="img-fluid rounded" alt="Default Image" style="max-height: 400px;">
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Details Section -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="fw-bold text-primary">{{ product.name }}</h2>
+                    <p class="text-muted mb-4">{{ product.description }}</p>
+                    <div class="mb-3">
+                        <span class="h4 text-danger fw-bold">MWK{{ product.price }}</span>
+                    </div>
+                    <p class="mb-3"><strong>Category:</strong> {{ product.category.name }}</p>
+                    <div class="d-flex gap-2">
+                        <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-success btn-lg px-4"><i class="bi bi-cart-plus"></i> Add to Cart</button>
+                        </form>
+                        <a href="/" class="btn btn-outline-secondary btn-lg px-4"><i class="bi bi-arrow-left"></i> Back to Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

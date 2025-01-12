@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Product - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title text-center mb-0">Edit Product</h3>
+                </div>
+                <div class="card-body">
+                    <!-- Flash Messages -->
+                    {% with messages = get_flashed_messages(category_filter=["success"]) %}
+                        {% if messages %}
+                            <div class="alert alert-success text-center" role="alert">
+                                {{ messages[0] }}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+
+                    <form action="{{ url_for('edit_product', product_id=product.id) }}" method="POST" enctype="multipart/form-data">
+                        <!-- Product Name -->
+                        <div class="mb-4">
+                            <label for="name" class="form-label">Product Name:</label>
+                            <input 
+                                type="text" 
+                                id="name" 
+                                name="name" 
+                                class="form-control rounded-3 shadow-sm" 
+                                value="{{ product.name }}" 
+                                required 
+                                placeholder="Enter product name">
+                        </div>
+
+                        <!-- Product Price -->
+                        <div class="mb-4">
+                            <label for="price" class="form-label">Price (USD):</label>
+                            <input 
+                                type="number" 
+                                id="price" 
+                                name="price" 
+                                class="form-control rounded-3 shadow-sm" 
+                                step="0.01" 
+                                value="{{ product.price }}" 
+                                required 
+                                placeholder="Enter product price">
+                        </div>
+
+                        <!-- Product Category -->
+                        <div class="mb-4">
+                            <label for="category" class="form-label">Category:</label>
+                            <select 
+                                id="category" 
+                                name="category" 
+                                class="form-select rounded-3 shadow-sm" 
+                                required>
+                                {% for category in categories %}
+                                    <option 
+                                        value="{{ category.id }}" 
+                                        {% if category.id == product.category_id %}selected{% endif %}>
+                                        {{ category.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Product Description -->
+                        <div class="mb-4">
+                            <label for="description" class="form-label">Description:</label>
+                            <textarea 
+                                id="description" 
+                                name="description" 
+                                class="form-control rounded-3 shadow-sm" 
+                                rows="5" 
+                                placeholder="Enter product description">{{ product.description }}</textarea>
+                        </div>
+
+                        <!-- Product Image -->
+                        <div class="mb-4">
+                            <label for="image" class="form-label">Product Image:</label>
+                            <input 
+                                type="file" 
+                                id="image" 
+                                name="image" 
+                                class="form-control rounded-3 shadow-sm" 
+                                accept="image/*">
+                            {% if product.image_url %}
+                                <div class="mt-3 text-center">
+                                    <strong>Current Image:</strong>
+                                    <img 
+                                        src="{{ url_for('static', filename=product.image_url.split('static/')[-1]) }}" 
+                                        alt="Current Product Image" 
+                                        class="img-fluid mt-2 rounded" 
+                                        style="width: 150px; height: auto;">
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-3 shadow-sm">
+                                Save Changes
+                            </button>
+                            <a href="{{ url_for('admin') }}" class="btn btn-outline-secondary btn-lg rounded-3 shadow-sm">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
