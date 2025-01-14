@@ -3,231 +3,147 @@
 {% block title %}Checkout - Online Product Store{% endblock %}
 
 {% block content %}
-    <div class="checkout-container">
-        <h1 class="checkout-title">Checkout</h1>
+<div class="checkout-container">
+    <h1 class="checkout-title">Checkout</h1>
 
-        <!-- Cart Items Table -->
-        <div class="cart-items-container">
-            <div class="table-responsive">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Product</th>
-                            <th>Price</th>
-                            <th>Quantity</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in cart_items %}
-                        <tr>
-                            <td>{{ item.product.name }}</td>
-                            <td>MK{{ item.product.price }}</td>
-                            <td>{{ item.quantity }}</td>
-                            <td>MK{{ item.product.price * item.quantity }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+    <!-- Cart Items Table -->
+    <div class="cart-items-container">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th><b>Product</b></th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                    <tr>
+                        <td><b>{{ item.product.name }}</b></td>
+                        <td>MK{{ item.product.price }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>MK{{ item.product.price * item.quantity }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-
-        <!-- Total Price -->
-        <div class="total-price-container">
-            <h3>Total: MK{{ total_price }}</h3>
-        </div>
-
-        <!-- Checkout Form -->
-        <form id="checkoutForm" action="{{ url_for('checkout') }}" method="POST" class="checkout-form">
-            <div class="form-group">
-                <label for="customerName">Customer Name:</label>
-                <input type="text" class="form-control" id="customerName" name="customerName" placeholder="Enter your name" required>
-            </div>
-
-            <div class="form-group">
-                <label for="address">Shipping Address:</label>
-                <input type="text" class="form-control" id="address" name="address" placeholder="Enter your shipping address" required>
-            </div>
-
-            <!-- Action Button to complete purchase via WhatsApp -->
-            <button type="submit" id="checkoutButton" class="btn btn-primary checkout-btn">
-                Complete Purchase
-            </button>
-        </form>
-
-        <!-- Hidden WhatsApp Link to be generated -->
-        <a id="whatsappLink" href="#" style="display:none;" target="_blank"></a>
     </div>
 
-    <script>
-        // Wait for the form submission to generate the WhatsApp link dynamically
-        document.getElementById('checkoutForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent the form from submitting normally
+    <!-- Total Price -->
+    <div class="total-price-container">
+        <h3>Total: MK{{ total_price }}</h3>
+    </div>
 
-            // Get the customer's name and shipping address
-            const customerName = document.getElementById('customerName').value;
-            const address = document.getElementById('address').value;
+    <!-- Checkout Form -->
+    <form id="checkoutForm" class="checkout-form">
+        <div class="form-group">
+            <label for="customerName">Customer Name:</label>
+            <input type="text" class="form-control" id="customerName" name="customerName" placeholder="Enter your name" required>
+        </div>
 
-            // Generate the WhatsApp link with cart details, name, and address
-            let message = `*Customer Name:* ${customerName}\n`;
-            message += `*I would like to purchase the following items:*\n`;
-            {% for item in cart_items %}
-                message += `- *{{ item.product.name }}* x {{ item.quantity }} (MK{{ item.product.price * item.quantity }})\n`;
-            {% endfor %}
-            message += `*Total Amount:* MK{{ total_price }}\n`;
-            message += `*Shipping Address:* ${address}`;
+        <div class="form-group">
+            <label for="address">Shipping Address:</label>
+            <input type="text" class="form-control" id="address" name="address" placeholder="Enter your shipping address" required>
+        </div>
 
-            // Set the WhatsApp link
-            const whatsappLink = `https://wa.me/265995235044?text=${encodeURIComponent(message)}`;
-            document.getElementById('whatsappLink').href = whatsappLink;
+        <!-- Contact Method Pop-up -->
+        <button type="button" id="contactButton" class="btn btn-primary checkout-btn">
+            Choose Contact Method
+        </button>
+    </form>
 
-            // Redirect to WhatsApp link
-            document.getElementById('whatsappLink').click();
-        });
-    </script>
+    <!-- Pop-up for Contact Method -->
+    <div id="contactPopup" class="popup">
+        <div class="popup-content">
+            <h2>How would you like to contact the seller?</h2>
+            <button id="whatsappButton" class="btn btn-success">WhatsApp</button>
+            <button id="facebookButton" class="btn btn-info">Facebook</button>
+        </div>
+    </div>
+</div>
 
-    <style>
-        /* Basic Styles */
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f9f9f9;
-            margin: 0;
-            padding: 0;
+<script>
+    // Show the contact popup when the button is clicked
+    document.getElementById('contactButton').addEventListener('click', function () {
+        document.getElementById('contactPopup').style.display = 'block';
+    });
+
+    // Close the popup and redirect to WhatsApp
+    document.getElementById('whatsappButton').addEventListener('click', function () {
+        const customerName = document.getElementById('customerName').value;
+        const address = document.getElementById('address').value;
+        if (!customerName || !address) {
+            alert('Please fill in your name and address.');
+            return;
         }
 
-        .checkout-container {
-            max-width: 800px;
-            margin: 30px auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        let message = `*Customer Name:* ${customerName}\n*I would like to purchase the following items:*\n`;
+        {% for item in cart_items %}
+        message += `- *{{ item.product.name }}* x {{ item.quantity }} (MK{{ item.product.price * item.quantity }})\n`;
+        {% endfor %}
+        message += `*Total Amount:* MK{{ total_price }}\n*Shipping Address:* ${address}`;
+        const whatsappLink = `https://wa.me/265995235044?text=${encodeURIComponent(message)}`;
+        window.location.href = whatsappLink;
+    });
+
+    // Close the popup and redirect to Facebook
+    document.getElementById('facebookButton').addEventListener('click', function () {
+        const customerName = document.getElementById('customerName').value;
+        const address = document.getElementById('address').value;
+        if (!customerName || !address) {
+            alert('Please fill in your name and address.');
+            return;
         }
 
-        .checkout-title {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            text-align: center;
-        }
+        window.location.href = 'https://www.facebook.com/messages/t/YourFacebookPageID';
+    });
+</script>
 
-        /* Cart Items Table */
-        .table-responsive {
-            max-width: 100%;
-            overflow-x: auto;  /* Enable horizontal scrolling on small screens */
-        }
+<style>
+    /* Styling for the pop-up */
+    .popup {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+    }
 
-        .table {
-            width: 100%;
-            margin-bottom: 20px;
-            border-collapse: collapse;
-        }
+    .popup-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        width: 300px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+    }
 
-        .table th, .table td {
-            padding: 12px;
-            text-align: left;
-            font-size: 16px;
-        }
+    .popup-content h2 {
+        margin-bottom: 20px;
+    }
 
-        .table th {
-            background-color: #f0f0f0;
-        }
+    .btn-success {
+        background-color: #25d366;
+        border: none;
+        color: white;
+        margin: 10px;
+    }
 
-        .table td {
-            background-color: #fafafa;
-        }
-
-        .table tr:nth-child(even) td {
-            background-color: #f9f9f9;
-        }
-
-        /* Total Price */
-        .total-price-container {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 20px;
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        /* Checkout Form */
-        .checkout-form {
-            margin-top: 30px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            background-color: #fafafa;
-            color: #333;
-        }
-
-        .form-control:focus {
-            border-color: #0056b3;
-            background-color: #fff;
-        }
-
-        .btn {
-            padding: 12px 25px;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            text-align: center;
-            display: inline-block;
-            width: 100%;
-        }
-
-        .btn-primary {
-            background-color: #ff9900;
-            color: white;
-            border: none;
-        }
-
-        .btn-primary:hover {
-            background-color: #f37e00;
-        }
-
-        .checkout-btn {
-            background-color: #ff9900;
-            color: white;
-            border: none;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .checkout-btn:hover {
-            background-color: #f37e00;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .checkout-container {
-                padding: 15px;
-            }
-
-            .checkout-title {
-                font-size: 24px;
-            }
-
-            .table th, .table td {
-                font-size: 14px;
-            }
-
-            .checkout-btn {
-                font-size: 16px;
-                padding: 10px 20px;
-            }
-        }
-    </style>
+    .btn-info {
+        background-color: #4267b2;
+        border: none;
+        color: white;
+        margin: 10px;
+    }
+</style>
 {% endblock %}
