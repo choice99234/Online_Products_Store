@@ -80,10 +80,12 @@
                                 </td>
                                 <td>MWK{{ product.price }}</td>
                                 <td>
-                                    {% for image in product.image_url.split(',') %}
-                                    <img src="{{ image }}" alt="Product Image" class="img-thumbnail me-2" style="width: 50px; height: 50px;">
-                                    {% endfor %}
-                                </td>
+                                    {% if product.image_data %}
+                                        <img src="{{ product.image_data }}" alt="Product Image" class="img-thumbnail me-2" style="width: 50px; height: 50px;">
+                                    {% else %}
+                                        <span>No Image</span>
+                                    {% endif %}
+                                </td>                                                                                                
                                 <td class="d-flex">
                                     <a href="/edit/{{ product.id }}" class="btn btn-warning btn-sm me-2">Edit</a>
                                     <form action="{{ url_for('delete_product', product_id=product.id) }}" method="POST" onsubmit="return confirm('Are you sure?')">

@@ -9,8 +9,8 @@
         <div class="col-lg-6">
             <div class="card shadow-sm">
                 <div class="card-body text-center">
-                    {% if product.image_url %}
-                        <img src="{{ url_for('static', filename='uploads/' + product.image_url.split('/')[-1]) }}" class="img-fluid rounded" alt="{{ product.name }}" style="max-height: 400px;">
+                    {% if image_url %}
+                        <img src="{{ image_url }}" class="img-fluid rounded" alt="{{ product.name }}" style="max-height: 400px;">
                     {% else %}
                         <img src="{{ url_for('static', filename='default-image.jpg') }}" class="img-fluid rounded" alt="Default Image" style="max-height: 400px;">
                     {% endif %}
