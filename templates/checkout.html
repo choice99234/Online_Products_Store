@@ -72,7 +72,7 @@
             let message = `*Customer Name:* ${customerName}\n`;
             message += `*I would like to purchase the following items:*\n`;
             {% for item in cart_items %}
-                message += `- *{{ item.product.name }}* x {{ item.quantity }}\n`;
+                message += `- *{{ item.product.name }}* x {{ item.quantity }} (MK{{ item.product.price * item.quantity }})\n`;
             {% endfor %}
             message += `*Total Amount:* MK{{ total_price }}\n`;
             message += `*Shipping Address:* ${address}`;
